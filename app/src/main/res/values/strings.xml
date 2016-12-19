@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">ToDo</string>
+    <string name="appwidget_text">ToDo</string>
+    <string name="add_widget">Add ToDo widget</string>
+</resources>

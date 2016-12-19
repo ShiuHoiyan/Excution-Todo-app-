@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.diong.todo.SettingActivity">
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/setting_goback"
+        android:background="@android:drawable/ic_menu_close_clear_cancel"
+        android:layout_margin="5dp"/>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_margin="20dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_centerInParent="true">
+        <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@drawable/textcolor_selector"
+            android:layout_centerVertical="true"
+            android:textSize="20dp"
+            android:text="闹钟提醒开启"
+            android:paddingLeft="10dp"
+            />
+        <ToggleButton
+            android:id="@+id/mTogBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:background="@android:color/transparent"
+            android:button="@drawable/switch_btn"
+            android:checked="false"
+            android:text=""
+            android:textOff=""
+            android:textOn=""
+            android:layout_alignParentRight="true"
+            />
+
+    </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@drawable/textcolor_selector"
+                android:layout_centerVertical="true"
+                android:textSize="20dp"
+                android:text="闹钟提醒距离期限"
+                android:paddingLeft="10dp"
+                />
+            <EditText
+                android:id="@+id/alarmTime"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="40dp"
+                android:numeric="integer" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="分钟"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:textSize="18dp"/>
+
+        </RelativeLayout>
+    </LinearLayout>
+</RelativeLayout>

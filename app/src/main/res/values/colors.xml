@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="basecolor">#B0E0E6</color>
+    <color name="darkgrey">#696969</color>
+    <color name="white">#FFFFFF</color>
+    <color name="cadetblue">#5F9EA0</color>
+    <color name="lightgrey">#DCDCDC</color>
+    <color name="violet">#edaabf</color>
+    <drawable name="darkgrey">#696969</drawable>
+    <drawable name="lightgrey">#DCDCDC</drawable>
+</resources>

@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context="com.example.wangyunwen.finallab.ItemDetails">
+    tools:context="com.example.wangyunwen.finallab.ItemDetails"
+    android:id="@+id/beizhu_root">
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -30,18 +31,30 @@
         android:id="@+id/timer"
         android:textSize="30dp"
         android:layout_gravity="center"
-        android:layout_marginTop="120dp"
+        android:layout_marginTop="80dp"
         android:textColor="@color/cadetblue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"/>
+
+    <EditText
+        android:layout_width="fill_parent"
+        android:layout_height="200dp"
+        android:hint="备注："
+        android:gravity="top|left"
+        android:layout_above="@+id/use"
+        android:layout_below="@+id/timer"
+        android:id="@+id/beizhu"
+        android:layout_margin="20dp"/>
+
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true">
+        android:layout_centerHorizontal="true"
+        android:id="@+id/use">
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -54,6 +67,12 @@
             android:id="@+id/delete_detail"
             android:layout_margin="10dp"
             android:background="@android:drawable/ic_menu_delete" />
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/share"
+            android:layout_margin="10dp"
+            android:background="@android:drawable/ic_menu_set_as" />
     </LinearLayout>
 
 </RelativeLayout>

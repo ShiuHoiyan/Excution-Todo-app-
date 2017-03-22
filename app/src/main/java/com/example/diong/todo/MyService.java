@@ -3,7 +3,9 @@ package com.example.diong.todo;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
@@ -14,10 +16,10 @@ public class MyService extends Service {
     final String toSend = "com.ianc.Alarmtestintent";
     //联系数据库
     private myDB mydb = new myDB(MyService.this);
+    private int altime = 15;
 
     public MyService() {
     }
-
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -47,8 +49,8 @@ public class MyService extends Service {
         c.set(Calendar.MINUTE, item.getToDoMinute());
         c.set(Calendar.SECOND, 0);
 
-        if(c.getTimeInMillis()-15*1000*60 > now) { //不对
-            //TODO：测试15分钟
+        if(c.getTimeInMillis()-item.getBeforeTime()*1000*60 > now && item.getToDoAlarmOP().equals("ON")) {
+            //TODO：测试单独是否可行
 
             Log.i("-----add alarm ", item.getToDoContent());
             Intent intent = new Intent(toSend);
@@ -57,19 +59,6 @@ public class MyService extends Service {
             PendingIntent sender = PendingIntent.getBroadcast(
                     MyService.this, mydb.searchID(content)*998 + item.getToDoYear()*3 + item.getToDoHour()*6 + item.getToDoMonth()*2 + item.getToDoDay()*86, intent, 0);
 
-
-
-         /*   Calendar c = Calendar.getInstance();
-            //从数据库取数据时间
-            c.set(Calendar.YEAR, item.getToDoYear());
-            c.set(Calendar.MONTH, item.getToDoMonth() - 1);//也可以填数字，0-11,一月为0
-            c.set(Calendar.DAY_OF_MONTH, item.getToDoDay());
-            c.set(Calendar.HOUR_OF_DAY, item.getToDoHour());
-            c.set(Calendar.MINUTE, item.getToDoMinute());
-            c.set(Calendar.SECOND, 0);*/
-            //设定时间为 2011年6月28日19点50分0秒
-            //c.set(2011, 05,28, 19,50, 0);
-            //也可以写在一行里
 
 
             // Schedule the alarm!
@@ -95,35 +84,4 @@ public class MyService extends Service {
         am.cancel(sender);
     }
 
-/*    private boolean addAble(TodoItem item) {
-        int year, month, day, hour, minute, mWay;
-        Calendar c = Calendar.getInstance();
-        //  取得系统日期:
-        year = c.get(Calendar.YEAR);
-        month = c.get(Calendar.MONTH);
-        day = c.get(Calendar.DAY_OF_MONTH);
-        // 取得系统时间：
-        hour = c.get(Calendar.HOUR_OF_DAY);
-        minute = c.get(Calendar.MINUTE);
-
-        if (year > item.getToDoYear()) {
-            return false;
-        }
-        if (year == item.getToDoYear() && month > item.getToDoMonth()-1) {
-            return false;
-        }
-        if (year == item.getToDoYear() && month == item.getToDoMonth()-1 &&
-                day > item.getToDoDay()) {
-            return false;
-        }
-        if (year == item.getToDoYear() && hour == item.getToDoMonth()-1 &&
-                day == item.getToDoDay() && hour > item.getToDoHour()) {
-            return false;
-        }
-        if (year == item.getToDoYear() && month == item.getToDoMonth()-1 &&
-                day == item.getToDoDay() && hour == item.getToDoHour() && minute >= item.getToDoHour()) {
-            return false;
-        }
-        return true;
-    }*/
 }

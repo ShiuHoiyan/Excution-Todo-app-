@@ -19,24 +19,26 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:weightSum="5"
         android:orientation="horizontal">
-        <DatePicker
-            android:layout_weight="3"
-            android:id="@+id/date_picker"
-            android:calendarViewShown="false"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:datePickerMode="spinner"></DatePicker>
-        <TimePicker
-            android:layout_weight="2"
-            android:layout_gravity="center_horizontal"
-            android:id="@+id/time_picker"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:timePickerMode="spinner"></TimePicker>
+    <DatePicker
+        android:id="@+id/date_picker2"
+        android:calendarViewShown="false"
+        android:layout_width="0dp"
+        android:layout_weight="3"
+        android:layout_height="wrap_content"
+        android:datePickerMode="spinner"></DatePicker>
+    <TimePicker
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/time_picker2"
+        android:layout_width="0dp"
+        android:layout_weight="2"
+        android:layout_height="wrap_content"
+        android:timePickerMode="spinner"></TimePicker>
     </LinearLayout>
+
     <RadioGroup
         android:id="@+id/important_group"
         android:gravity="center"
@@ -47,19 +49,67 @@
             android:id="@+id/important"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:button="@drawable/checkbox_unim_selector"
+            android:button="@drawable/checkbox_unim_selector_green"
             android:padding="2dp"
             android:textColor="@color/darkgrey"
             android:text="重要"/>
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:button="@drawable/checkbox_unim_selector"
+            android:button="@drawable/checkbox_unim_selector_green"
             android:padding="2dp"
             android:textColor="@color/darkgrey"
             android:text="不重要"
             android:checked="true"
             android:id="@+id/notImprotant"/>
     </RadioGroup>
+
+
+        <RadioGroup
+            android:id="@+id/alarmGroup"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_margin="10dp">
+        <RadioButton
+            android:id="@+id/alarmOpen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:button="@drawable/checkbox_unim_selector_green"
+            android:padding="2dp"
+            android:textColor="@color/darkgrey"
+            android:checked="true"
+            android:text="开启提示"/>
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:button="@drawable/checkbox_unim_selector_green"
+            android:padding="2dp"
+            android:textColor="@color/darkgrey"
+            android:text="关闭提示"
+            android:id="@+id/alarmClose"/>
+        </RadioGroup>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="设定闹钟时间: 提前"/>
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="15"
+        android:id="@+id/beforeTime"
+        android:inputType="numberDecimal"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="分钟"/>
+        </LinearLayout>
 
 </LinearLayout>

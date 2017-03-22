@@ -6,17 +6,20 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -32,13 +35,19 @@ public class ItemDetails extends AppCompatActivity {
     //项目详情页面
 
     private TextView timer, contentView;
-    int year, month, day, hour, minute, second, important, finish;
-    private String con;
+    int year, month, day, hour, minute, second, important, finish, beforetime, tempIM;
+    private String con, alarmOp, tempOp;
     long leftTime;
     private MyTimer myTimer;
     private myDB mydb;
+    private bzDB bzdb;
     private ImageButton editB, deleteB, returnB;
     private MyService alarmservice = new MyService();
+    private EditText editText;
+    private WechatShareManager wechatShareManager;
+    private ImageButton share;
+    private ImageView camera;
+    private SharedPreferences themePreferences;
 
 
     @Override
@@ -50,19 +59,30 @@ public class ItemDetails extends AppCompatActivity {
             Log.i("-----v-----", version+"");
             //overridePendingTransition(android.R.anim.fade_in,android.R.anim.fade_out);
 
-
+        bzdb = new bzDB(getApplicationContext());
         editB = (ImageButton)findViewById(R.id.edit_detail);
         deleteB = (ImageButton)findViewById(R.id.delete_detail);
         returnB = (ImageButton)findViewById(R.id.detail_goback);
-
+        share = (ImageButton) findViewById(R.id.share);
+        editText = (EditText)findViewById(R.id.beizhu);
+        editText.setCursorVisible(false);
+        timer = (TextView) findViewById(R.id.timer);
+        contentView = (TextView) findViewById(R.id.content);
         Intent intent = new Intent(this, MyService.class);
         bindService(intent, sc, Context.BIND_AUTO_CREATE);
+
+
+        // 设置颜色
+        themePreferences = getSharedPreferences("theme", Context.MODE_PRIVATE);
+        setTheTheme();
 
         //通过传过来的项目内容，找到项目
         Bundle bundle = this.getIntent().getExtras();
         final String content = bundle.getString("ToDoItemContent");
         mydb = new myDB(getApplicationContext());
-        TodoItem item = mydb.getEntry(content);
+        final TodoItem item = mydb.getEntry(content);
+
+        editText.setText(bzdb.getBZ(content));
 
         //提取该项目的日期时间
         year = item.getToDoYear();
@@ -74,11 +94,38 @@ public class ItemDetails extends AppCompatActivity {
         con = content;
         important = item.getImportant();
         finish = item.getFinish();
+        alarmOp = item.getToDoAlarmOP();
+        beforetime = item.getBeforeTime();
 
+
+        findViewById(R.id.beizhu_root).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editText.setCursorVisible(false);
+                bzdb.updateBZ(content, editText.getText().toString());
+                ((InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(ItemDetails.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                // (WidgetSearchActivity是当前的Activity)
+            }
+        });
+
+//        camera.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//            }
+//        });
+        editText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editText.setCursorVisible(true);
+                editText.setSelection(editText.getText().toString().length());
+            }
+        });
 
         returnB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                bzdb.updateBZ(content, editText.getText().toString());
                 finish();
                 if (Integer.valueOf(android.os.Build.VERSION.SDK)  > 2 ) {
                     overridePendingTransition(0, R.anim.activity_detail_out);
@@ -98,8 +145,15 @@ public class ItemDetails extends AppCompatActivity {
                 final RadioGroup importantGroup = (RadioGroup) view1.findViewById(R.id.important_group2);
                 final RadioButton importantB =(RadioButton) view1.findViewById(R.id.important2);
                 final RadioButton NimportantB =(RadioButton) view1.findViewById(R.id.notImprotant2);
+                final RadioGroup alarmOpGroup = (RadioGroup)view1.findViewById(R.id.alarmGroup2);
+
+                final RadioButton alarmONB =(RadioButton) view1.findViewById(R.id.alarmOpen2);
+                final RadioButton alarmOffB =(RadioButton) view1.findViewById(R.id.alarmClose2);
+
+                final EditText beforeTime = (EditText)view1.findViewById(R.id.beforeTime2);
                 time_picker.setIs24HourView(true);
 
+                beforeTime.setText(beforetime+"");
                 new_item_content.setText(con);
                 if (important == 1) {
                     importantB.setChecked(true);
@@ -109,15 +163,68 @@ public class ItemDetails extends AppCompatActivity {
                     NimportantB.setChecked(true);
                 }
 
+                if (alarmOp.equals("ON")) {
+                    alarmONB.setChecked(true);
+                    alarmOffB.setChecked(false);
+                } else {
+                    alarmONB.setChecked(false);
+                    alarmOffB.setChecked(true);
+                }
+
+                //设置颜色
+                int unim_selector;
+                String color;
+                if (themePreferences.getString("theme", null)==null) {
+                    color = "green";
+                } else {
+                    color = themePreferences.getString("theme", null);
+                }
+                switch (color) {
+                    case "green":
+                        unim_selector = R.drawable.checkbox_unim_selector_green;
+                        setTheme(R.style.AppThemeGreen);
+                        break;
+                    case "pink":
+                        unim_selector = R.drawable.checkbox_unim_selector_pink;
+                        setTheme(R.style.AppThemePink);
+                        break;
+                    case "grey":
+                        unim_selector = R.drawable.checkbox_unim_selector_grey;
+                        setTheme(R.style.AppThemeGrey);
+                        break;
+                    default:
+                        unim_selector = R.drawable.checkbox_unim_selector_green;
+                        setTheme(R.style.AppThemeGreen);
+                        break;
+                }
+                importantB.setButtonDrawable(unim_selector);
+                NimportantB.setButtonDrawable(unim_selector);
+                alarmONB.setButtonDrawable(unim_selector);
+                alarmOffB.setButtonDrawable(unim_selector);
+
+
+                tempIM = important;
+                tempOp = alarmOp;
 
                 //判断是否重要
                 importantGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(RadioGroup group, int checkedId) {
-                        if(checkedId==R.id.important){
-                            important = 1;
+                        if(checkedId==R.id.important2){
+                            tempIM = 1;
                         } else {
-                            important = 0;
+                            tempIM = 0;
+                        }
+                    }
+                });
+
+                alarmOpGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(RadioGroup group, int checkedId) {
+                        if(checkedId==R.id.alarmOpen2){
+                            tempOp = "ON";
+                        } else {
+                            tempOp = "OFF";
                         }
                     }
                 });
@@ -139,6 +246,7 @@ public class ItemDetails extends AppCompatActivity {
                                 final int hour = time_picker.getHour();
                                 final int minute = time_picker.getMinute();
                                 final String content = new_item_content.getText().toString();
+                                final int before = Integer.valueOf(beforeTime.getText().toString());
 
                                 TodoItem temp = null;
                                 temp = mydb.getEntry(content);
@@ -153,11 +261,13 @@ public class ItemDetails extends AppCompatActivity {
                                 c.set(Calendar.SECOND, 0);
 
                                 if (tonow < c.getTimeInMillis()) {
-                                    TodoItem newItem = new TodoItem(content, year, month, day, hour, minute, important, finish);
+                                    TodoItem newItem = new TodoItem(content, year, month, day, hour, minute, tempIM, finish, tempOp, before);
                                     Log.i("---NewItem-----", newItem.getToDoContent());
                                     alarmservice.deleteAlarm(content);
                                     mydb.updateEntry(newItem);
                                     alarmservice.addAlarm(content);
+
+
                                     Bundle bundle = new Bundle();
                                     bundle.putString("ToDoItemContent", newItem.getToDoContent());
                                     Intent intent = new Intent(ItemDetails.this, ItemDetails.class);
@@ -194,10 +304,6 @@ public class ItemDetails extends AppCompatActivity {
                         setPositiveButton("是", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                //把数据添加到数据库中
-                             /*   TodoItem newItem = new TodoItem(content, year, month, day, hour, minute, important, 3);
-                                mydb.updateEntry(newItem);
-                                finish();*/
                                 alarmservice.deleteAlarm(content);
                                 mydb.deleteEntry(content);
                                 unbindService(sc);
@@ -212,8 +318,6 @@ public class ItemDetails extends AppCompatActivity {
 
 
 
-        timer = (TextView) findViewById(R.id.timer);
-        contentView = (TextView) findViewById(R.id.content);
         contentView.setText(con);
 
         try {
@@ -224,6 +328,46 @@ public class ItemDetails extends AppCompatActivity {
         myTimer = new MyTimer(leftTime, 1000);
         Log.i("------", leftTime+"");
         myTimer.start();
+
+        share.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                wechatShareManager = new WechatShareManager(ItemDetails.this);
+                if(wechatShareManager.isWebchatAvaliable())
+                    wechatShareManager.shareText(item);
+            }
+        });
+    }
+
+    private void setTheTheme() {
+        String color;
+        if (themePreferences.getString("theme", null)==null) {
+            color = "green";
+        } else {
+            color = themePreferences.getString("theme", null);
+        }
+        switch (color) {
+            case "green":
+                contentView.setTextColor(getResources().getColor(R.color.cadetblue));
+                timer.setTextColor(getResources().getColor(R.color.cadetblue));
+                setTheme(R.style.AppThemeGreen);
+                break;
+            case "pink":
+                contentView.setTextColor(getResources().getColor(R.color.PinkMain));
+                timer.setTextColor(getResources().getColor(R.color.PinkMain));
+                setTheme(R.style.AppThemePink);
+                break;
+            case "grey":
+                contentView.setTextColor(getResources().getColor(R.color.darkgrey));
+                timer.setTextColor(getResources().getColor(R.color.darkgrey));
+                setTheme(R.style.AppThemeGrey);
+                break;
+            default:
+                contentView.setTextColor(getResources().getColor(R.color.cadetblue));
+                setTheme(R.style.AppThemeGreen);
+                break;
+        }
+
     }
 
 
@@ -234,12 +378,20 @@ public class ItemDetails extends AppCompatActivity {
             unbindService(sc);
         }
         myTimer.cancel();
-       // overridePendingTransition(0, R.anim.activity_detail_out);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        try {
+            leftTime = calculateRemainTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        myTimer = new MyTimer(leftTime, 1000);
+        Log.i("------", leftTime+"");
+        myTimer.start();
     }
 
     @Override

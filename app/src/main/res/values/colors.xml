@@ -9,6 +9,13 @@
     <color name="cadetblue">#5F9EA0</color>
     <color name="lightgrey">#DCDCDC</color>
     <color name="violet">#edaabf</color>
+    <color name="pink">#FFB6C1</color>
+    <color name="IndianRed">#CD5C5C</color>
+    <color name="silver">#DADBDD</color>
+    <color name="RosyBrown">#BC8F8F</color>
+    <color name="LightCoral">#F08080</color>
+    <color name="PinkMain">#AB6A73</color>
+    <color name="lightPink">#DBDBEE</color>
     <drawable name="darkgrey">#696969</drawable>
     <drawable name="lightgrey">#DCDCDC</drawable>
 </resources>

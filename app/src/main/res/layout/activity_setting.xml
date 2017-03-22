@@ -10,68 +10,65 @@
         android:layout_height="wrap_content"
         android:id="@+id/setting_goback"
         android:background="@android:drawable/ic_menu_close_clear_cancel"
-        android:layout_margin="5dp"/>
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"/>
 
-    <LinearLayout
+    <ListView
         android:layout_width="fill_parent"
-        android:layout_margin="20dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_centerInParent="true">
-        <RelativeLayout
+        android:layout_margin="16dp"
+        android:id="@+id/settingList"
+        android:divider="#00000000"
+        android:dividerHeight="5dp"
+        android:layout_below="@+id/setting_goback">
+
+    </ListView>
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp">
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/settingList"
+        android:layout_margin="15dp"
+        android:orientation="vertical">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@drawable/textcolor_selector"
-            android:layout_centerVertical="true"
-            android:textSize="20dp"
-            android:text="闹钟提醒开启"
-            android:paddingLeft="10dp"
-            />
-        <ToggleButton
-            android:id="@+id/mTogBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:background="@android:color/transparent"
-            android:button="@drawable/switch_btn"
-            android:checked="false"
-            android:text=""
-            android:textOff=""
-            android:textOn=""
-            android:layout_alignParentRight="true"
-            />
-
-    </RelativeLayout>
-        <RelativeLayout
+            android:text="选择主题"
+            android:textSize="17dp"
+            android:layout_marginLeft="10dp"/>
+        <RadioGroup
+            android:id="@+id/theme_picker"
             android:layout_width="match_parent"
-            android:layout_height="50dp">
-            <TextView
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_margin="5dp"
+            android:padding="10dp">
+            <RadioButton
+                android:layout_margin="5dp"
+                android:padding="6dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@drawable/textcolor_selector"
-                android:layout_centerVertical="true"
-                android:textSize="20dp"
-                android:text="闹钟提醒距离期限"
-                android:paddingLeft="10dp"
-                />
-            <EditText
-                android:id="@+id/alarmTime"
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="40dp"
-                android:numeric="integer" />
-            <TextView
+                android:id="@+id/green"
+                android:textColor="@color/darkgrey"
+                android:button="@drawable/checkbox_unim_selector_green"
+                android:text="绿"/>
+            <RadioButton
+                android:layout_margin="5dp"
+                android:padding="6dp"
+                android:id="@+id/pink"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="分钟"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:textSize="18dp"/>
-
-        </RelativeLayout>
+                android:textColor="@color/darkgrey"
+                android:button="@drawable/checkbox_unim_selector_pink"
+                android:text="粉"/>
+            <RadioButton
+                android:layout_margin="5dp"
+                android:padding="6dp"
+                android:id="@+id/grey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/darkgrey"
+                android:button="@drawable/checkbox_unim_selector_grey"
+                android:text="灰"/>
+        </RadioGroup>
     </LinearLayout>
 </RelativeLayout>

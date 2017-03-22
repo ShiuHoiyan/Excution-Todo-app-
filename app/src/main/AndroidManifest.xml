@@ -55,7 +55,13 @@
         </receiver>
 
         <activity android:name=".SettingActivity" />
-        <activity android:name=".wxapi.WXEntryActivity"></activity>
+        <activity android:name=".wxapi.WXEntryActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+
+        </activity>
+
     </application>
 
 </manifest>

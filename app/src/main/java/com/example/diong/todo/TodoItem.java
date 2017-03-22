@@ -12,8 +12,10 @@ public class TodoItem {
     private int hour;
     private int minute;
     private String content;
+    private String alarmOp;
+    private int beforeTime;
 
-    public TodoItem(String con, int y, int mo, int d, int h, int mi, int i,int f) {
+    public TodoItem(String con, int y, int mo, int d, int h, int mi, int i,int f, String op, int timeT) {
         content = con;
         important = i;
         year = y;
@@ -22,13 +24,19 @@ public class TodoItem {
         hour = h;
         minute = mi;
         finish = f;
+        alarmOp = op;
+        beforeTime = timeT;
     }
 
     public void setImportant() {
         important = 1;
     }
-    public void setFinish(){finish = 1;}
-    public void cancelFinish() {finish = 0;}
+    public void setFinish(){
+        finish = 1;
+    }
+    public void cancelFinish() {
+        finish = 0;
+    }
 
     public void cancelImportant() {
         important = 0;
@@ -40,6 +48,14 @@ public class TodoItem {
 
     public void setMonth(int m) {
         month = m;
+    }
+
+    public void setAlarmOp(String op) {
+        alarmOp = op;
+    }
+
+    public void setBeforeTime(int T) {
+        beforeTime = T;
     }
 
     public void setDay(int d) {
@@ -80,6 +96,14 @@ public class TodoItem {
 
     public String getToDoContent() {
         return content;
+    }
+
+    public String getToDoAlarmOP() {
+        return alarmOp;
+    }
+
+    public int getBeforeTime() {
+        return beforeTime;
     }
 
     public int getImportant() {

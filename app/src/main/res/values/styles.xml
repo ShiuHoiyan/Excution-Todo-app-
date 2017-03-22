@@ -1,11 +1,29 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppThemeGreen" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/cadetblue</item>
         <item name="colorPrimaryDark">@color/darkgrey</item>
         <item name="colorAccent">@color/basecolor</item>
+    </style>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/darkgrey</item>
+        <item name="colorPrimaryDark">@color/darkgrey</item>
+        <item name="colorAccent">@color/silver</item>
+    </style>
+    <style name="AppThemeGrey" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/darkgrey</item>
+        <item name="colorPrimaryDark">@color/darkgrey</item>
+        <item name="colorAccent">@color/silver</item>
+    </style>
+    <style name="AppThemePink" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/PinkMain</item>
+        <item name="colorPrimaryDark">@color/darkgrey</item>
+        <item name="colorAccent">@color/violet</item>
     </style>
 
     <style name="common_horizontal_division_line_style">
@@ -14,6 +32,6 @@
     <item name="android:layout_marginRight">10dp</item>
     <item name="android:layout_height">0.5dp</item>
     <item name="android:orientation">horizontal</item>
-    <item name="android:background">@color/basecolor</item>
+    <item name="android:background">@color/lightgrey</item>
     </style>
 </resources>

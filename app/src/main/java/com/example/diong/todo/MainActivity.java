@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -22,6 +23,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -29,7 +31,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
     private ListView todoList;
@@ -37,11 +38,10 @@ public class MainActivity extends AppCompatActivity {
     private Button addButton, settingB;
     private List<TodoItem> list = new ArrayList<TodoItem>();
     private myDB mydb;
-    int important;
-    int finish;
+    private bzDB bzdb;
     private MyService alarmservice = new MyService();
     private String lastClick = "";
-
+    private SharedPreferences themePreferences;
     final private String widgetUp = "android.appwidget.action.UpdateWidgetText";
 
     //
@@ -55,6 +55,11 @@ public class MainActivity extends AppCompatActivity {
     private float lastY;
     private float lastZ;
 
+    private int important = 0;
+    private int finish = 0;
+    private String alarmOp = "ON";
+    private int beforeTime = 15;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
         getViews();
         //获取所有数据并显示出来
         mydb = new myDB(getApplicationContext());
+        bzdb = new bzDB(getApplicationContext());
       //  mydb.onCreateDelete();
         //list = mydb.getAllItems();
         refleshList();
@@ -77,6 +83,29 @@ public class MainActivity extends AppCompatActivity {
         //传感器部分
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+
+        // 设置主题和颜色
+        themePreferences = getSharedPreferences("theme", Context.MODE_PRIVATE);
+        String color;
+        if (themePreferences.getString("theme", null)==null) {
+            color = "green";
+        } else {
+            color = themePreferences.getString("theme", null);
+        }
+        switch (color) {
+            case "green":
+                setTheme(R.style.AppThemeGreen);
+                break;
+            case "pink":
+                setTheme(R.style.AppThemePink);
+                break;
+            case "grey":
+                setTheme(R.style.AppThemeGrey);
+                break;
+            default:
+                setTheme(R.style.AppThemeGreen);
+                break;
+        }
 
         //单击列表,跳转到选中的项目详情页面
         todoList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -111,8 +140,9 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 //把数据添加到数据库中
-                                deleteAlarmByContent(content);
+                                alarmservice.deleteAlarm(content);
                                 mydb.deleteEntry(content);
+                                bzdb.deleteBZ(content);
                                 //list = mydb.getAllItems();
                                 refleshList();
                                // Context context = getApplicationContext();
@@ -139,9 +169,45 @@ public class MainActivity extends AppCompatActivity {
                 final DatePicker date_picker = (DatePicker) view1.findViewById(R.id.date_picker);
                 final EditText new_item_content = (EditText) view1.findViewById(R.id.new_item);
                 final RadioGroup importantGroup = (RadioGroup) view1.findViewById(R.id.important_group);
+                final RadioGroup alarmOpGroup = (RadioGroup)view1.findViewById(R.id.alarmGroup);
+                final EditText beforeTime = (EditText)view1.findViewById(R.id.beforeTime);
                 time_picker.setIs24HourView(true);
-                important = 0;
-                finish = 0;
+
+                //设置颜色
+                int unim_selector;
+                String color;
+                if (themePreferences.getString("theme", null)==null) {
+                    color = "green";
+                } else {
+                    color = themePreferences.getString("theme", null);
+                }
+                switch (color) {
+                    case "green":
+                        unim_selector = R.drawable.checkbox_unim_selector_green;
+                        setTheme(R.style.AppThemeGreen);
+                        break;
+                    case "pink":
+                        unim_selector = R.drawable.checkbox_unim_selector_pink;
+                        setTheme(R.style.AppThemePink);
+                        break;
+                    case "grey":
+                        unim_selector = R.drawable.checkbox_unim_selector_grey;
+                        setTheme(R.style.AppThemeGrey);
+                        break;
+                    default:
+                        unim_selector = R.drawable.checkbox_unim_selector_green;
+                        setTheme(R.style.AppThemeGreen);
+                        break;
+                }
+                RadioButton a, b, c, d;
+                a = (RadioButton) view1.findViewById(R.id.important);
+                b = (RadioButton) view1.findViewById(R.id.notImprotant);
+                c = (RadioButton) view1.findViewById(R.id.alarmClose);
+                d = (RadioButton) view1.findViewById(R.id.alarmOpen);
+                a.setButtonDrawable(unim_selector);
+                b.setButtonDrawable(unim_selector);
+                c.setButtonDrawable(unim_selector);
+                d.setButtonDrawable(unim_selector);
 
                 //判断是否重要
                 importantGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -151,6 +217,17 @@ public class MainActivity extends AppCompatActivity {
                             important = 1;
                         } else {
                             important = 0;
+                        }
+                    }
+                });
+
+                alarmOpGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(RadioGroup group, int checkedId) {
+                        if(checkedId==R.id.alarmOpen){
+                            alarmOp = "ON";
+                        } else {
+                            alarmOp = "OFF";
                         }
                     }
                 });
@@ -172,8 +249,8 @@ public class MainActivity extends AppCompatActivity {
                                 final int hour = time_picker.getHour();
                                 final int minute = time_picker.getMinute();
                                 final String content = new_item_content.getText().toString();
-
-                                if (!content.isEmpty()) {
+                                final int before = Integer.valueOf(beforeTime.getText().toString());
+                                if (!content.isEmpty() ) {
                                     TodoItem temp = null;
                                     temp = mydb.getEntry(content);
                                     if (temp != null) {
@@ -190,16 +267,17 @@ public class MainActivity extends AppCompatActivity {
                                         c.set(Calendar.SECOND, 0);
 
                                         if (tonow < c.getTimeInMillis()) {
-                                            TodoItem newItem = new TodoItem(content, year, month, day, hour, minute, important, finish);
+                                            TodoItem newItem = new TodoItem(content, year, month, day, hour, minute, important, finish, alarmOp, before);
                                             Log.i("---NewItem-----", newItem.getToDoContent());
                                             mydb.insertEntry(newItem);
+                                            bzdb.insertBZ(content, "");
                                             //更新列表
                                             refleshList();
                                            // Context context = getApplicationContext();
                                             myAdapter.setList(list);
                                             todoList.setAdapter(myAdapter);
                                             sendWidgetBocast();
-                                            addAlarmByContent(content);
+                                            alarmservice.addAlarm(content);
                                         } else {
                                             Toast.makeText(MainActivity.this, "设定完成时间不能小于现在时间", Toast.LENGTH_SHORT).show();
                                         }
@@ -226,7 +304,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
     }
 
     protected void onResume() {
@@ -237,13 +314,6 @@ public class MainActivity extends AppCompatActivity {
         if (sensor != null && sensorManager != null) {
             sensorManager.registerListener(sensorEventListener, sensor, SensorManager.SENSOR_DELAY_GAME);//这里选择感应频率
         }
-    /*    if (!lastClick.equals("")) {
-            if (mydb.getEntry(lastClick).getFinish() == 3) { //如果刚才点击的那个content不见了说明被删除了
-                deleteAlarmByContent(lastClick);
-                mydb.deleteEntry(lastClick);
-            }
-            lastClick = "";
-        }*/
 
 
         refleshList();
@@ -314,7 +384,9 @@ public class MainActivity extends AppCompatActivity {
             alarmservice =
                     ((MyService.MyBinder)(service)).getService();
             //绑定成功后
-            addAllAlarm();}
+            SharedPreferences sharedPreferences = getSharedPreferences("AlarmTF", Context.MODE_PRIVATE);
+            if (sharedPreferences.getBoolean("alarmOrNot", true))  addAllAlarm();
+        }
     };
 
     private void addAllAlarm() {
@@ -323,18 +395,49 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void deleteAlarmByContent(String content) {
-        alarmservice.deleteAlarm(content);
-    }
-
-    private void addAlarmByContent(String content) {
-        alarmservice.addAlarm(content);
-    }
 
     private void refleshList() {
-        list = mydb.getImportantList();
-        list.addAll(mydb.getNotImportantList());
-        list.addAll(mydb.getFinishList());
+        SharedPreferences dDelete = getSharedPreferences("defaultdelete", Context.MODE_PRIVATE);
+        String form1 = dDelete.getString("default", "NO");
+        if (form1.equals("YES")) {
+            mydb.deleteFinish();
+        }
+        SharedPreferences setform = getSharedPreferences("listfrom", Context.MODE_PRIVATE);
+        String form = setform.getString("form", "important");
+        if (form.equals("important")) {
+            list = mydb.getImportantList();
+            list.addAll(mydb.getNotImportantList());
+            list.addAll(mydb.getFinishList());
+        } else {
+            list = mydb.getAllItems();
+            Calendar c = Calendar.getInstance();
+            long now = c.getTimeInMillis();
+            for (int i = 0; i < list.size(); i++) {
+                c.set(Calendar.YEAR, list.get(i).getToDoYear());
+                c.set(Calendar.MONTH, list.get(i).getToDoMonth() - 1);//也可以填数字，0-11,一月为0
+                c.set(Calendar.DAY_OF_MONTH, list.get(i).getToDoDay());
+                c.set(Calendar.HOUR_OF_DAY, list.get(i).getToDoHour());
+                c.set(Calendar.MINUTE, list.get(i).getToDoMinute());
+                c.set(Calendar.SECOND, 0);
+                long itemp = now - c.getTimeInMillis();
+                for (int t = i; t < list.size(); t++) {
+                    //从数据库取数据时间
+                    c.set(Calendar.YEAR, list.get(t).getToDoYear());
+                    c.set(Calendar.MONTH, list.get(t).getToDoMonth() - 1);//也可以填数字，0-11,一月为0
+                    c.set(Calendar.DAY_OF_MONTH, list.get(t).getToDoDay());
+                    c.set(Calendar.HOUR_OF_DAY, list.get(t).getToDoHour());
+                    c.set(Calendar.MINUTE, list.get(t).getToDoMinute());
+                    c.set(Calendar.SECOND, 0);
+                    long ttemp = now - c.getTimeInMillis();
+                    //TODO：改了这个垃圾冒泡
+                    if (itemp <= ttemp) {
+                        TodoItem temp = list.get(i);
+                        list.set(i,list.get(t));
+                        list.set(t, temp);
+                    }
+                }
+            }
+        }
     }
 
     private void sendWidgetBocast() {

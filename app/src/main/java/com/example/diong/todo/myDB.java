@@ -24,7 +24,7 @@ import java.util.List;
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         String CREATE_TABLE = "CREATE TABLE if not exists "
                 + TABLE_NAME
-                +" (_id INTEGER PRIMARY KEY, content TEXT, year INTEGER,month INTEGER,day INTEGER,hour INTEGER, minute INTEGER,important INTEGER,finish INTEGER)";
+                +" (_id INTEGER PRIMARY KEY, content TEXT, year INTEGER,month INTEGER,day INTEGER,hour INTEGER, minute INTEGER,important INTEGER,finish INTEGER, alarmOp TEXT, beforeTime INTEGER)";
         sqLiteDatabase.execSQL(CREATE_TABLE);
     }
     @Override
@@ -41,6 +41,8 @@ import java.util.List;
         cv.put("minute", i.getToDoMinute());
         cv.put("important", i.getImportant());
         cv.put("finish",i.getFinish());
+        cv.put("alarmOp", i.getToDoAlarmOP());
+        cv.put("beforeTime", i.getBeforeTime());
         db.insert(TABLE_NAME,null,cv);
         db.close();
     }
@@ -55,6 +57,8 @@ import java.util.List;
         cv.put("minute", i.getToDoMinute());
         cv.put("important", i.getImportant());
         cv.put("finish",i.getFinish());
+        cv.put("alarmOp", i.getToDoAlarmOP());
+        cv.put("beforeTime", i.getBeforeTime());
         String whereClause = "content=?";
         String[] whereArgs={i.getToDoContent()};
         db.update(TABLE_NAME,cv,whereClause,whereArgs);
@@ -69,7 +73,7 @@ import java.util.List;
 
     public TodoItem getEntry(String content) {
         SQLiteDatabase db = getWritableDatabase();
-        Cursor cursor = db.query(TABLE_NAME,new String[]{"content","year","month","day","hour","minute","important","finish"},null,null,null,null,null);
+        Cursor cursor = db.query(TABLE_NAME,new String[]{"content","year","month","day","hour","minute","important","finish", "alarmOp", "beforeTime"},null,null,null,null,null);
         TodoItem temp;
         while (cursor.moveToNext()) {
             int contentCol = cursor.getColumnIndex("content");
@@ -82,8 +86,10 @@ import java.util.List;
                 int minuteCol = cursor.getColumnIndex("minute");
                 int importantCol = cursor.getColumnIndex("important");
                 int finishCol = cursor.getColumnIndex("finish");
+                int OpCol = cursor.getColumnIndex("alarmOp");
+                int TimeCol = cursor.getColumnIndex("beforeTime");
                 temp = new TodoItem(cursor.getString(contentCol),cursor.getInt(yearCol), cursor.getInt(monthCol),
-                        cursor.getInt(dayCol),cursor.getInt(hourCol),cursor.getInt(minuteCol),cursor.getInt(importantCol),cursor.getInt(finishCol));
+                        cursor.getInt(dayCol),cursor.getInt(hourCol),cursor.getInt(minuteCol),cursor.getInt(importantCol),cursor.getInt(finishCol), cursor.getString(OpCol), cursor.getInt(TimeCol));
                 return temp;
             }
         }
@@ -93,7 +99,7 @@ import java.util.List;
     public List<TodoItem> getAllItems() {
         List<TodoItem> bl = new ArrayList<TodoItem>();
         SQLiteDatabase db = getWritableDatabase();
-        Cursor cursor = db.query(TABLE_NAME,new String[]{"content","year","month","day","hour","minute","important","finish"},null,null,null,null,null);
+        Cursor cursor = db.query(TABLE_NAME,new String[]{"content","year","month","day","hour","minute","important","finish", "alarmOp", "beforeTime"},null,null,null,null,null);
         while (cursor.moveToNext()) {
             int contentCol = cursor.getColumnIndex("content");
             int yearCol = cursor.getColumnIndex("year");
@@ -103,8 +109,11 @@ import java.util.List;
             int minuteCol = cursor.getColumnIndex("minute");
             int importantCol = cursor.getColumnIndex("important");
             int finishCol = cursor.getColumnIndex("finish");
+            int OpCol = cursor.getColumnIndex("alarmOp");
+            int TimeCol = cursor.getColumnIndex("beforeTime");
             TodoItem temp = new TodoItem(cursor.getString(contentCol),cursor.getInt(yearCol), cursor.getInt(monthCol),
-                    cursor.getInt(dayCol),cursor.getInt(hourCol),cursor.getInt(minuteCol),cursor.getInt(importantCol),cursor.getInt(finishCol));
+                    cursor.getInt(dayCol),cursor.getInt(hourCol),cursor.getInt(minuteCol),
+                    cursor.getInt(importantCol),cursor.getInt(finishCol), cursor.getString(OpCol), cursor.getInt(TimeCol));
             bl.add(temp);
         }
         return bl;
@@ -112,7 +121,7 @@ import java.util.List;
 
     public int searchID(String content) {
         SQLiteDatabase db = getWritableDatabase();
-        Cursor cursor = db.query(TABLE_NAME,new String[]{"_id","content","year","month","day","hour","minute","important","finish"},null,null,null,null,null);
+        Cursor cursor = db.query(TABLE_NAME,new String[]{"_id","content","year","month","day","hour","minute","important","finish", "alarmOp", "beforeTime"},null,null,null,null,null);
         TodoItem temp;
         while (cursor.moveToNext()) {
             int contentCol = cursor.getColumnIndex("content");
@@ -126,34 +135,25 @@ import java.util.List;
         return -1;
     }
 
-  /*  public TodoItem getTodoItemByID(int id) {
+    public void deleteFinish() {
         SQLiteDatabase db = getWritableDatabase();
-        Cursor cursor = db.query(TABLE_NAME,new String[]{"_id", "content","year","month","day","hour","minute","important"},null,null,null,null,null);
-        TodoItem temp;
+        Cursor cursor = db.query(TABLE_NAME,new String[]{"_id","content","year","month","day","hour","minute","important","finish", "alarmOp", "beforeTime"},null,null,null,null,null);
         while (cursor.moveToNext()) {
-            int idCol = cursor.getColumnIndex("_id");
-            int tempContent = cursor.getInt(idCol);
-            if (tempContent == id) {
-                int contentCol = cursor.getColumnIndex("content");
-                int yearCol = cursor.getColumnIndex("year");
-                int monthCol = cursor.getColumnIndex("month");
-                int dayCol = cursor.getColumnIndex("day");
-                int hourCol = cursor.getColumnIndex("hour");
-                int minuteCol = cursor.getColumnIndex("minute");
-                int importantCol = cursor.getColumnIndex("important");
-                temp = new TodoItem(cursor.getString(contentCol),cursor.getInt(yearCol), cursor.getInt(monthCol),
-                        cursor.getInt(dayCol),cursor.getInt(hourCol),cursor.getInt(minuteCol),cursor.getInt(importantCol));
-                return temp;
+            int finishCol = cursor.getColumnIndex("finish");
+            int finished = cursor.getInt(finishCol);
+            int contentCol = cursor.getColumnIndex("content");
+            String tempContent = cursor.getString(contentCol);
+            if (finished == 1) {
+                deleteEntry(tempContent);
             }
         }
-        return null;
-    }*/
+    }
 
 
     public List<TodoItem> getImportantList() {
         List<TodoItem> bl = new ArrayList<TodoItem>();
         SQLiteDatabase db = getWritableDatabase();
-        Cursor cursor = db.query(TABLE_NAME,new String[]{"content","year","month","day","hour","minute","important","finish"},null,null,null,null,null);
+        Cursor cursor = db.query(TABLE_NAME,new String[]{"content","year","month","day","hour","minute","important","finish", "alarmOp", "beforeTime"},null,null,null,null,null);
         while (cursor.moveToNext()) {
             int contentCol = cursor.getColumnIndex("content");
             int yearCol = cursor.getColumnIndex("year");
@@ -163,9 +163,12 @@ import java.util.List;
             int minuteCol = cursor.getColumnIndex("minute");
             int importantCol = cursor.getColumnIndex("important");
             int finishCol = cursor.getColumnIndex("finish");
+            int OpCol = cursor.getColumnIndex("alarmOp");
+            int TimeCol = cursor.getColumnIndex("beforeTime");
             if (cursor.getInt(finishCol) != 1 && cursor.getInt(importantCol) == 1) {
-                TodoItem temp = new TodoItem(cursor.getString(contentCol), cursor.getInt(yearCol), cursor.getInt(monthCol),
-                        cursor.getInt(dayCol), cursor.getInt(hourCol), cursor.getInt(minuteCol), cursor.getInt(importantCol), cursor.getInt(finishCol));
+                TodoItem temp = new TodoItem(cursor.getString(contentCol),cursor.getInt(yearCol), cursor.getInt(monthCol),
+                        cursor.getInt(dayCol),cursor.getInt(hourCol),cursor.getInt(minuteCol),
+                        cursor.getInt(importantCol),cursor.getInt(finishCol), cursor.getString(OpCol), cursor.getInt(TimeCol));
                 bl.add(temp);
             }
         }
@@ -175,7 +178,7 @@ import java.util.List;
     public List<TodoItem> getNotImportantList() {
         List<TodoItem> bl = new ArrayList<TodoItem>();
         SQLiteDatabase db = getWritableDatabase();
-        Cursor cursor = db.query(TABLE_NAME,new String[]{"content","year","month","day","hour","minute","important","finish"},null,null,null,null,null);
+        Cursor cursor = db.query(TABLE_NAME,new String[]{"content","year","month","day","hour","minute","important","finish" , "alarmOp", "beforeTime"},null,null,null,null,null);
         while (cursor.moveToNext()) {
             int contentCol = cursor.getColumnIndex("content");
             int yearCol = cursor.getColumnIndex("year");
@@ -185,9 +188,12 @@ import java.util.List;
             int minuteCol = cursor.getColumnIndex("minute");
             int importantCol = cursor.getColumnIndex("important");
             int finishCol = cursor.getColumnIndex("finish");
+            int OpCol = cursor.getColumnIndex("alarmOp");
+            int TimeCol = cursor.getColumnIndex("beforeTime");
             if (cursor.getInt(finishCol) != 1 && cursor.getInt(importantCol) == 0) {
-                TodoItem temp = new TodoItem(cursor.getString(contentCol), cursor.getInt(yearCol), cursor.getInt(monthCol),
-                        cursor.getInt(dayCol), cursor.getInt(hourCol), cursor.getInt(minuteCol), cursor.getInt(importantCol), cursor.getInt(finishCol));
+                TodoItem temp = new TodoItem(cursor.getString(contentCol),cursor.getInt(yearCol), cursor.getInt(monthCol),
+                        cursor.getInt(dayCol),cursor.getInt(hourCol),cursor.getInt(minuteCol),
+                        cursor.getInt(importantCol),cursor.getInt(finishCol), cursor.getString(OpCol), cursor.getInt(TimeCol));
                 bl.add(temp);
             }
         }
@@ -197,7 +203,7 @@ import java.util.List;
     public List<TodoItem> getFinishList() {
         List<TodoItem> bl = new ArrayList<TodoItem>();
         SQLiteDatabase db = getWritableDatabase();
-        Cursor cursor = db.query(TABLE_NAME,new String[]{"content","year","month","day","hour","minute","important","finish"},null,null,null,null,null);
+        Cursor cursor = db.query(TABLE_NAME,new String[]{"content","year","month","day","hour","minute","important","finish" , "alarmOp", "beforeTime"},null,null,null,null,null);
         while (cursor.moveToNext()) {
             int contentCol = cursor.getColumnIndex("content");
             int yearCol = cursor.getColumnIndex("year");
@@ -207,9 +213,12 @@ import java.util.List;
             int minuteCol = cursor.getColumnIndex("minute");
             int importantCol = cursor.getColumnIndex("important");
             int finishCol = cursor.getColumnIndex("finish");
+            int OpCol = cursor.getColumnIndex("alarmOp");
+            int TimeCol = cursor.getColumnIndex("beforeTime");
             if (cursor.getInt(finishCol) == 1) {
-                TodoItem temp = new TodoItem(cursor.getString(contentCol), cursor.getInt(yearCol), cursor.getInt(monthCol),
-                        cursor.getInt(dayCol), cursor.getInt(hourCol), cursor.getInt(minuteCol), cursor.getInt(importantCol), cursor.getInt(finishCol));
+                TodoItem temp = new TodoItem(cursor.getString(contentCol),cursor.getInt(yearCol), cursor.getInt(monthCol),
+                        cursor.getInt(dayCol),cursor.getInt(hourCol),cursor.getInt(minuteCol),
+                        cursor.getInt(importantCol),cursor.getInt(finishCol), cursor.getString(OpCol), cursor.getInt(TimeCol));
                 bl.add(temp);
             }
         }

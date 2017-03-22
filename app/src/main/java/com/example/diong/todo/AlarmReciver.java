@@ -27,8 +27,8 @@ public class AlarmReciver extends BroadcastReceiver {
       //  ApplicationInfo appInfo = context.getApplicationInfo();
        // int resID = context.getResources().getIdentifier("notimap", "mipmap", appInfo.packageName);
         Notification.Builder builder = new Notification.Builder(context);
-        builder.setContentTitle("TODO提示")
-                .setContentText("离"+what+"完成还有15分钟，快去完成吧")
+        builder.setContentTitle("EXECUTION提示")
+                .setContentText("快去完成"+what+"吧，时间不多啦")
                 .setSmallIcon(R.mipmap.notimap);
               /*  .setContentText(fruit.name[position])
                 etLargeIcon(bm)

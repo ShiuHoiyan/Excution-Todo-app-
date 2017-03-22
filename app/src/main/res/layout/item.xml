@@ -7,13 +7,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="hshshsh"
-        android:button="@drawable/checkbox_unim_selector"
+        android:button="@drawable/checkbox_unim_selector_green"
         android:textColor="@drawable/textcolor_selector"
         android:textSize="20dp"
         android:focusable="false"
         android:paddingLeft="25dp"
         android:layout_margin="10dp"/>
     <LinearLayout
+        android:id="@+id/linear"
         android:layout_below="@+id/checkbox"
         style="@style/common_horizontal_division_line_style"></LinearLayout>
 </RelativeLayout>
